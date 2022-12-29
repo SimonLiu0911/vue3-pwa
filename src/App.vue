@@ -3,8 +3,40 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
   </nav>
-  <router-view/>
+  <router-view />
 </template>
+
+<script>
+import { reactive, onMounted } from 'vue'
+
+export default {
+  name: 'App',
+  setup () {
+    const states = reactive({
+      deferredPrompt: null
+    })
+    onMounted(() => {
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault()
+
+        states.deferredPrompt = e
+      })
+
+      window.addEventListener('appinstalled', () => {
+        states.deferredPrompt = null
+      })
+
+      document.querySelector('#app').addEventListener('click', () => {
+        if (states.deferredPrompt) {
+          states.deferredPrompt.prompt()
+          states.deferredPrompt = null
+        }
+      })
+    })
+  }
+}
+
+</script>
 
 <style lang="scss">
 #app {
