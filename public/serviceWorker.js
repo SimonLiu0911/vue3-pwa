@@ -1,4 +1,5 @@
-const cacheName = 'Vue3-PWA'
+const CACHE_STATIC_NAME = 'static-v1'
+const CACHE_DYNAMIC_NAME = 'dynamic-v1'
 const cacheFiles = [
   '/',
   '/index.html',
@@ -7,72 +8,56 @@ const cacheFiles = [
 
 self.addEventListener('install', e => {
   console.log('[SW] install!')
+
   e.waitUntil(
-    caches.open(cacheName)
-      // .then(cache => {
-      //   cache.delete()
-      // })
+    caches.open(CACHE_STATIC_NAME)
       .then(cache => {
-        return cache.addAll(cacheFiles)
-      })
-      .then(cache => {
-        cache.keys().then(keys => {
-          keys.forEach((request, index, array) => {
-            cache.delete(request)
-          })
-        })
+        cache.addAll(cacheFiles)
       })
   )
 })
 
 self.addEventListener('activate', event => {
-  // caches.open(cacheName)
-  //   .then(cache => {
-  //     cache.keys().then(keys => {
-  //       keys.forEach((request, index, array) => {
-  //         cache.delete(request)
-  //       })
-  //     })
-  //   })
+  console.log('activate')
+  event.waitUntil(
+    caches.keys()
+      .then(keyList => {
+        return Promise.all(keyList.map(key => {
+          if (key !== CACHE_STATIC_NAME && key !== CACHE_DYNAMIC_NAME) {
+            console.log('[Service Worker] Removing old cache.', key)
+          }
+          return caches.delete(key)
+        })
+        )
+      })
+  )
 })
 
 self.addEventListener('fetch', event => {
+  // 解決: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported(https://github.com/iamshaunjp/pwa-tutorial/issues/1)
+
+  if (!(event.request.url.indexOf('http') === 0)) return
+
+  console.log('[SW] fetch!')
+
   event.respondWith(
     caches.match(event.request)
-      .then(function (response) {
-        console.log(0)
-        // 抓不到會拿到 null
+      .then(response => {
         if (response) {
-          console.log(1, response)
           return response
         } else {
-          console.log(2)
           return fetch(event.request)
-            .then(function (res) {
-              caches.open('dynamic')
-                .then(function (cache) {
+            .then(res => {
+              return caches.open(CACHE_DYNAMIC_NAME)
+                .then(cache => {
                   cache.put(event.request.url, res.clone())
                   return res
                 })
             })
+            .catch(err => {
+              console.log(err)
+            })
         }
       })
   )
-  // event.respondWith(
-  //   fetch('http://httpbin.org/ip')
-  //     .then((response) => {
-  //       console.log(response)
-  //     })
-  //     .then(function (data) {
-  //       console.log(data)
-  //     })
-  // )
-  // event.respondWith(
-  //   caches
-  //     .open(cacheName)
-  //     .then(cache => cache.match(event.request, { ignoreSearch: true }))
-  //     .then(response => {
-  //       return response || fetch(event.request)
-  //     })
-  // )
 })
