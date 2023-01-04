@@ -1,4 +1,4 @@
-const cacheName = 'penueling'
+const cacheName = 'vu3-pe'
 
 self.addEventListener('install', e => {
   e.waitUntil(
