@@ -34,10 +34,41 @@
 </template>
 
 <script>
+import { reactive, onMounted } from 'vue'
+
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
+  setup () {
+    const coords = reactive({
+      data: {
+        latitude: null,
+        longitude: null
+      }
+    })
+
+    const getLocation = () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          coords.data.latitude = position.coords.latitude
+          coords.data.longitude = position.coords.longitude
+        })
+      } else {
+        console.log('你的瀏覽器不支援地理定位。')
+      }
+    }
+
+    const requestNotification = () => {
+      // Notification.Permission((status) => console.log(status)) // granted/denied
+    }
+
+    onMounted(() => {
+      getLocation()
+      requestNotification()
+    })
+
+    return {
+      coords
+    }
   }
 }
 </script>

@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          // .register("/f2e/testPWA2/serviceWorker.js")
+          .register("serviceWorker.js")
+          .then(res => console.log("service worker registered"))
+          .catch(err => console.log("service worker not registered", err));
+      }
+    </script>
   </head>
   <body>
     <noscript>
