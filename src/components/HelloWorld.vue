@@ -1,21 +1,37 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <select name="" id="">
-      <option value="" disabled selected hidden>請選擇</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-    </select>
+    <p>X座標: {{ coords.data.latitude }}</p>
+    <p>Y座標: {{ coords.data.longitude }}</p>
   </div>
 </template>
 
 <script>
+import { reactive, onMounted } from 'vue'
+
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
-  },
   setup () {
+    const coords = reactive({
+      data: {
+        latitude: null,
+        longitude: null
+      }
+    })
+
+    onMounted(() => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          coords.data.latitude = position.coords.latitude
+          coords.data.longitude = position.coords.longitude
+        })
+      } else {
+        console.log('你的瀏覽器不支援地理定位。')
+      }
+    })
+
+    return {
+      coords
+    }
   }
 }
 </script>

@@ -3,7 +3,8 @@ const CACHE_DYNAMIC_NAME = 'dynamic-v1'
 const cacheFiles = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  'offline.html'
 ]
 
 self.addEventListener('install', e => {
@@ -35,7 +36,6 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   // 解決: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported(https://github.com/iamshaunjp/pwa-tutorial/issues/1)
-
   if (!(event.request.url.indexOf('http') === 0)) return
 
   console.log('[SW] fetch!')
@@ -56,6 +56,11 @@ self.addEventListener('fetch', event => {
             })
             .catch(err => {
               console.log(err)
+
+              return caches.open(CACHE_DYNAMIC_NAME)
+                .then(cache => {
+                  return cache.match('/offline.html')
+                })
             })
         }
       })
