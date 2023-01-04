@@ -2,6 +2,8 @@
   <nav>
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
+    <br>
+    <button @click="A2HS">install</button>
   </nav>
   <router-view />
 </template>
@@ -15,6 +17,13 @@ export default {
     const states = reactive({
       deferredPrompt: null
     })
+
+    const A2HS = () => {
+      if (states.deferredPrompt) {
+        states.deferredPrompt.prompt()
+        states.deferredPrompt = null
+      }
+    }
     onMounted(() => {
       window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault()
@@ -26,13 +35,17 @@ export default {
         states.deferredPrompt = null
       })
 
-      document.querySelector('#app').addEventListener('click', () => {
-        if (states.deferredPrompt) {
-          states.deferredPrompt.prompt()
-          states.deferredPrompt = null
-        }
-      })
+      // document.querySelector('#app').addEventListener('click', () => {
+      //   if (states.deferredPrompt) {
+      //     states.deferredPrompt.prompt()
+      //     states.deferredPrompt = null
+      //   }
+      // })
     })
+
+    return {
+      A2HS
+    }
   }
 }
 
