@@ -59,7 +59,7 @@ self.addEventListener('fetch', event => {
 
               return caches.open(CACHE_DYNAMIC_NAME)
                 .then(cache => {
-                  return cache.match('/offline.html')
+                  return cache.match('/f2e/testPWA2/offline.html')
                 })
             })
         }
